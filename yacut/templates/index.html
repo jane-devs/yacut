@@ -17,30 +17,24 @@
             <div>
                 <div>
                     {{ form.original_link(class="form-control form-control-lg py-2 mb-3", placeholder=form.original_link.label.text) }}
-                    {% if form.original_link.errors %}
-                        <p><span style="color:red">
-                            {% for error in form.original_link.errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </span></p>
-                    {% endif %}
+                      <p><span style="color:red">
+                        {% for error in form.original_link.errors %}
+                          {{ error }}
+                        {% endfor %}
+                      </span></p>
                 </div>
                 <div>
                     {{ form.custom_id(class="form-control form-control-lg py-2 mb-3", placeholder=form.custom_id.label.text) }}
-                    {% if form.custom_id.errors %}
-                        <p><span style="color:red">
-                            {% for error in form.custom_id.errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </span></p>
-                    {% endif %}
+                      <p><span style="color:red">
+                        {% for error in form.custom_id.errors %}
+                          {{ error }}
+                        {% endfor %}
+                      </span></p>
                     <p><span style="color:red">
                         {% with messages = get_flashed_messages() %}
-                            {% if messages %}
-                                {% for message in messages %}
-                                    {{ message }}
-                                {% endfor %}
-                            {% endif %}
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
                         {% endwith %}
                         </span></p>
                     </p>
@@ -63,8 +57,8 @@
               <h5 class="text-center">Ваша новая ссылка готова:</h5>
               <p>
                 <div class="d-flex justify-content-center">
-                  <a href="{{ url_for('index_view', _external=True) }}{{ short_link }}" target="_blank">
-                      {{ url_for('index_view', _external=True) }}{{ short_link }}
+                  <a href="{{ short_link }}" target="_blank">
+                      {{ short_link }}
                   </a>
                 </div>
             </p>
