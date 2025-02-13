@@ -8,9 +8,9 @@ from yacut.error_handlers import InvalidAPIUsage
 from yacut.models import URLMap
 from yacut.views import get_unique_short_id
 from settings import (
-    MAX_LENGTH_USERS, check_short_link_exists, API_ERROR_ID,
-    API_NO_DATA, API_URL_REQUIRED, SHORT_EXISTS, API_INVALID_SHORT,
-    API_INVALID_URL, SHORT_REGULAR
+    MAX_LENGTH_USERS, get_unique_short_id, check_short_link_exists,
+    API_ERROR_ID, API_NO_DATA, API_URL_REQUIRED, SHORT_EXISTS,
+    API_INVALID_SHORT, API_INVALID_URL, SHORT_REGULAR
 )
 
 
