@@ -18,9 +18,3 @@ class URLMap(db.Model):
             short=self.short,
             timestamp=self.timestamp,
         )
-
-    def from_dict(self, data):
-        """Метод превращения словаря в JSON."""
-        for field in ['original', 'short']:
-            if field in data:
-                setattr(self, field, data[field])

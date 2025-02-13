@@ -1,9 +1,10 @@
 from flask import jsonify, render_template
 
-from yacut import app, db
+from yacut import app
 
 
 class InvalidAPIUsage(Exception):
+    """Собственное исключение для ошибок в звпросах API."""
     status_code = 400
 
     def __init__(self, message, status_code=None):
@@ -24,9 +25,3 @@ def invalid_api_usage(error):
 @app.errorhandler(404)
 def page_not_found(error):
     return render_template('404.html'), 404
-
-
-@app.errorhandler(500)
-def internal_error(error):
-    db.session.rollback()
-    return render_template('500.html'), 500
