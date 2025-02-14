@@ -1,12 +1,17 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, URLField
-from wtforms.validators import DataRequired, Length, Optional, URL, Regexp
+from wtforms.validators import (
+    DataRequired, Length, Optional, URL,
+    Regexp, ValidationError
+)
 
 from yacut.models import URLMap
-from settings import (
-    API_INVALID_SHORT, API_INVALID_URL, CUSTOM_ID_DESCRIPTION,
-    DATA_REQUIRED, MAX_LENGTH_USERS, MAX_URL_LENGTH,
-    ORIGINAL_DESCRIPTION, SHORT_REGULAR, SUBMIT_BUTTON_TEXT
+from yacut.constants import (
+    INVALID_SHORT, INVALID_URL,
+    CUSTOM_ID_DESCRIPTION, DATA_REQUIRED,
+    MAX_LENGTH_USERS_SHORT, MAX_URL_LENGTH,
+    ORIGINAL_DESCRIPTION, SHORT_EXISTS,
+    SUBMIT_BUTTON_TEXT, SHORT_REGULAR
 )
 
 
@@ -17,17 +22,19 @@ class MainForm(FlaskForm):
         validators=[
             DataRequired(message=DATA_REQUIRED),
             Length(max=MAX_URL_LENGTH),
-            URL(message=API_INVALID_URL)
+            URL(message=INVALID_URL)
         ])
     custom_id = StringField(
         CUSTOM_ID_DESCRIPTION,
         validators=[
-            Length(max=MAX_LENGTH_USERS),
+            Length(max=MAX_LENGTH_USERS_SHORT),
             Optional(),
-            Regexp(SHORT_REGULAR, message=API_INVALID_SHORT)
+            Regexp(SHORT_REGULAR, message=INVALID_SHORT)
         ])
     submit = SubmitField(SUBMIT_BUTTON_TEXT)
 
     def validate_custom_id(self, field):
         """Проверка существования короткой ссылки."""
-        URLMap().validate_short_link(field.data)
+        if field.data:
+            if URLMap.get_short_link_exists(short=field.data):
+                raise ValidationError(SHORT_EXISTS)
