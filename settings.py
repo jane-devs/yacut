@@ -1,11 +1,9 @@
 import os
-from random import choice
 
 API_ERROR_ID = 'Указанный id не найден'
 API_INVALID_SHORT = 'Указано недопустимое имя для короткой ссылки'
 API_INVALID_URL = 'Указан невалидный URL.'
 API_NO_DATA = 'Отсутствует тело запроса'
-API_URL_REQUIRED = '\"url\" является обязательным полем!'
 CUSTOM_ID_DESCRIPTION = 'Желаемая короткая ссылка'
 DATA_REQUIRED = 'Обязательное поле'
 MAX_LENGTH_GENERATE = 6
@@ -16,16 +14,9 @@ SHORT_EXISTS = 'Предложенный вариант короткой ссы�
 SHORT_REGULAR = r'^[a-zA-Z0-9]+$'
 SUBMIT_BUTTON_TEXT = 'Создать'
 SYMBOLS_STR = 'qwertyuiopasdfghjklzxcvbnm1234567890QWERTYUIOPASDFGHJKLZXCVBNM'
+URL_REQUIRED = '\"url\" является обязательным полем!'
 
 
 class Config(object):
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI')
     SECRET_KEY = os.getenv('SECRET_KEY')
-
-
-def get_unique_short_id():
-    return ''.join(choice(SYMBOLS_STR) for _ in range(MAX_LENGTH_GENERATE))
-
-
-def check_short_link_exists(model, short):
-    return model.query.filter_by(short=short).first()

@@ -1,15 +1,16 @@
 from datetime import datetime
+from random import choice
 import re
+from urllib.parse import urljoin
 
 from flask import request
+from wtforms import ValidationError
 
 from yacut import db
-from yacut.error_handlers import InvalidAPIUsage
 from settings import (
     API_INVALID_SHORT, MAX_LENGTH_USERS, MAX_URL_LENGTH,
-    SHORT_EXISTS, SHORT_REGULAR, check_short_link_exists,
-    get_unique_short_id
-
+    MAX_LENGTH_GENERATE, SHORT_EXISTS,
+    SHORT_REGULAR, SYMBOLS_STR, URL_REQUIRED
 )
 
 
@@ -30,25 +31,44 @@ class URLMap(db.Model):
         )
 
     @staticmethod
-    def get_or_create(original, short=None):
+    def create(original, short=None, form_validated=False):
         """Проверяет существование пользовательской короткой ссылки.
         Если не существует, то создает новую."""
-        if short not in [None, ""]:
-            if check_short_link_exists(model=URLMap, short=short):
-                raise InvalidAPIUsage(SHORT_EXISTS)
+        if not short:
+            short = URLMap.get_unique_short_id()
+        if not form_validated:
             if not re.match(SHORT_REGULAR, short) or (
                 len(short) > MAX_LENGTH_USERS
             ):
-                raise InvalidAPIUsage(API_INVALID_SHORT)
-        else:
-            short = get_unique_short_id()
-        urlmap = URLMap(
+                raise Exception(API_INVALID_SHORT)
+            if URLMap.check_short_link_exists(short=short):
+                raise Exception(SHORT_EXISTS)
+        if original in [None, '']:
+            raise Exception(URL_REQUIRED)
+        url_map = URLMap(
             original=original,
             short=short
         )
-        db.session.add(urlmap)
+        db.session.add(url_map)
         db.session.commit()
-        return {
-            'url': urlmap.original,
-            'short_link': request.host_url + urlmap.short
-        }
+        return url_map
+
+    @staticmethod
+    def check_short_link_exists(short):
+        """Метод модели для проверки существования короткой ссылки."""
+        return URLMap.query.filter_by(short=short).first()
+
+    def validate_short_link(self, short):
+        """Метод модели для валидации короткой ссылки."""
+        if short and self.check_short_link_exists(short):
+            raise ValidationError(SHORT_EXISTS)
+
+    @staticmethod
+    def get_unique_short_id():
+        """Метод модели для получения уникальной короткой ссылки."""
+        return ''.join(choice(SYMBOLS_STR) for _ in range(MAX_LENGTH_GENERATE))
+
+    @staticmethod
+    def get_full_url(short):
+        """Метод модели для получения полного URL из короткой ссылки."""
+        return urljoin(request.host_url, short)

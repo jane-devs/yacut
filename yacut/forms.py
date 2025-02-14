@@ -1,23 +1,13 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, URLField, ValidationError
+from wtforms import StringField, SubmitField, URLField
 from wtforms.validators import DataRequired, Length, Optional, URL, Regexp
 
 from yacut.models import URLMap
 from settings import (
     API_INVALID_SHORT, API_INVALID_URL, CUSTOM_ID_DESCRIPTION,
     DATA_REQUIRED, MAX_LENGTH_USERS, MAX_URL_LENGTH,
-    ORIGINAL_DESCRIPTION, SHORT_EXISTS, SHORT_REGULAR, SUBMIT_BUTTON_TEXT,
-    check_short_link_exists
+    ORIGINAL_DESCRIPTION, SHORT_REGULAR, SUBMIT_BUTTON_TEXT
 )
-
-
-def validator_short_link_exsist(form, field):
-    """Валидатор существующей короткой ссылки."""
-    if check_short_link_exists(
-        model=URLMap,
-        short=field.data
-    ):
-        raise ValidationError(SHORT_EXISTS)
 
 
 class MainForm(FlaskForm):
@@ -34,7 +24,10 @@ class MainForm(FlaskForm):
         validators=[
             Length(max=MAX_LENGTH_USERS),
             Optional(),
-            Regexp(SHORT_REGULAR, message=API_INVALID_SHORT),
-            validator_short_link_exsist
+            Regexp(SHORT_REGULAR, message=API_INVALID_SHORT)
         ])
     submit = SubmitField(SUBMIT_BUTTON_TEXT)
+
+    def validate_custom_id(self, field):
+        """Проверка существования короткой ссылки."""
+        URLMap().validate_short_link(field.data)
