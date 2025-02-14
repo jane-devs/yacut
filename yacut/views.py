@@ -36,3 +36,8 @@ def redirect_to_original(short):
     if url_map:
         return redirect(url_map.original)
     abort(HTTPStatus.NOT_FOUND)
+
+
+@app.route('/docs', methods=['GET'])
+def documentation():
+    return render_template('docs.html')
