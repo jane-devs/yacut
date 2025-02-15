@@ -1,7 +1,6 @@
 from http import HTTPStatus
 
 from flask import abort, flash, redirect, render_template
-from sqlalchemy.exc import DatabaseError
 
 from yacut import app
 from yacut.forms import MainForm
@@ -17,21 +16,20 @@ def index_view():
         return render_template(
             'index.html',
             form=form,
-            short_link=URLMap.get_full_url(
-                URLMap.create(
-                    original=form.original_link.data,
-                    short=form.custom_id.data,
-                    validated=True
-                ).short
-            ))
-    except DatabaseError as e:
+            short_link=URLMap.create(
+                original=form.original_link.data,
+                short=form.custom_id.data,
+                is_data_validated=True
+            ).get_full_url()
+        )
+    except ValueError as e:
         flash(str(e))
         return render_template('index.html', form=form)
 
 
 @app.route('/<short>')
 def redirect_to_original(short):
-    url_map = URLMap.get_short_link_exists(short=short)
+    url_map = URLMap.get_existing_short(short=short)
     if url_map:
         return redirect(url_map.original)
     abort(HTTPStatus.NOT_FOUND)

@@ -36,5 +36,5 @@ class MainForm(FlaskForm):
     def validate_custom_id(self, field):
         """Проверка существования короткой ссылки."""
         if field.data:
-            if URLMap.get_short_link_exists(short=field.data):
+            if URLMap.get_existing_short(short=field.data):
                 raise ValidationError(SHORT_EXISTS)
