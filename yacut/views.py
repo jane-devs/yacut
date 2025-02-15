@@ -19,7 +19,7 @@ def index_view():
             short_link=URLMap.create(
                 original=form.original_link.data,
                 short=form.custom_id.data,
-                is_data_validated=True
+                validate=False
             ).get_full_url()
         )
     except ValueError as e:
@@ -29,7 +29,7 @@ def index_view():
 
 @app.route('/<short>')
 def redirect_to_original(short):
-    url_map = URLMap.get_existing_short(short=short)
+    url_map = URLMap.get(short=short)
     if url_map:
         return redirect(url_map.original)
     abort(HTTPStatus.NOT_FOUND)

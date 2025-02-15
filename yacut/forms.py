@@ -8,7 +8,7 @@ from wtforms.validators import (
 from yacut.models import URLMap
 from yacut.constants import (
     INVALID_SHORT, INVALID_URL,
-    CUSTOM_ID_DESCRIPTION, DATA_REQUIRED,
+    CUSTOM_SHORT_DESCRIPTION, DATA_REQUIRED,
     MAX_LENGTH_USERS_SHORT, MAX_URL_LENGTH,
     ORIGINAL_DESCRIPTION, SHORT_EXISTS,
     SUBMIT_BUTTON_TEXT, SHORT_REGULAR
@@ -25,7 +25,7 @@ class MainForm(FlaskForm):
             URL(message=INVALID_URL)
         ])
     custom_id = StringField(
-        CUSTOM_ID_DESCRIPTION,
+        CUSTOM_SHORT_DESCRIPTION,
         validators=[
             Length(max=MAX_LENGTH_USERS_SHORT),
             Optional(),
@@ -36,5 +36,5 @@ class MainForm(FlaskForm):
     def validate_custom_id(self, field):
         """Проверка существования короткой ссылки."""
         if field.data:
-            if URLMap.get_existing_short(short=field.data):
+            if URLMap.get(short=field.data):
                 raise ValidationError(SHORT_EXISTS)

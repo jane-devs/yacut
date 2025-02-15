@@ -2,14 +2,15 @@ from datetime import datetime
 import random
 import re
 
-from flask import abort, current_app, url_for
+from flask import url_for
 
 from yacut import db
 from yacut.constants import (
     INVALID_SHORT, MAX_LENGTH_GENERATE_SHORT,
     GENERATE_FAIL, MAX_LENGTH_USERS_SHORT, MAX_URL_LENGTH,
     MAX_GENERATE_ATTEMPTS, SHORT_EXISTS,
-    SHORT_REGULAR, SYMBOLS_STR, URL_REQUIRED
+    SHORT_REGULAR, SYMBOLS_STR, SHORT_URL_REDIRECT_NAME,
+    URL_REQUIRED
 )
 
 
@@ -32,19 +33,20 @@ class URLMap(db.Model):
         )
 
     @staticmethod
-    def create(original, short=None, is_data_validated=False):
+    def create(original, short=None, validate=False):
         if short:
-            if not is_data_validated:
-                if len(original) > MAX_URL_LENGTH:
-                    raise ValueError(URL_REQUIRED)
-                if URLMap.get_existing_short(short):
-                    raise ValueError(SHORT_EXISTS)
-                if len(short) > MAX_LENGTH_USERS_SHORT or (
-                    not re.match(SHORT_REGULAR, short)
-                ):
+            if validate:
+                if len(short) > MAX_LENGTH_USERS_SHORT:
                     raise ValueError(INVALID_SHORT)
+                if not re.match(SHORT_REGULAR, short):
+                    raise ValueError(INVALID_SHORT)
+                if URLMap.get(short):
+                    raise ValueError(SHORT_EXISTS)
         else:
-            short = URLMap.get_unique_short_id()
+            short = URLMap.get_unique_short()
+        if validate:
+            if len(original) > MAX_URL_LENGTH:
+                raise ValueError(URL_REQUIRED)
         url_map = URLMap(
             original=original,
             short=short
@@ -54,21 +56,20 @@ class URLMap(db.Model):
         return url_map
 
     @staticmethod
-    def get_existing_short(short):
+    def get(short):
         """Метод модели для извлечения короткого идентификатора."""
         return URLMap.query.filter_by(short=short).first()
 
     @staticmethod
-    def get_unique_short_id():
+    def get_unique_short():
         """Метод модели для получения уникального короткого идентификатора."""
-        attempt = 0
-        while attempt < MAX_GENERATE_ATTEMPTS:
+        for _ in range(MAX_GENERATE_ATTEMPTS):
             short = ''.join(random.sample(
                 SYMBOLS_STR, MAX_LENGTH_GENERATE_SHORT
             ))
-            if not URLMap.get_existing_short(short):
+            if not URLMap.get(short):
                 return short
-        abort(500, description=GENERATE_FAIL)
+        raise ValueError(GENERATE_FAIL)
 
     def get_full_url(self):
         """
@@ -76,7 +77,7 @@ class URLMap(db.Model):
         из короткого идентификатора.
         """
         return url_for(
-            current_app.config['SHORT_URL_REDIRECT_NAME'],
+            SHORT_URL_REDIRECT_NAME,
             short=self.short,
             _external=True
         )

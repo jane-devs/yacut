@@ -14,11 +14,12 @@ API_NO_DATA = 'Отсутствует тело запроса'
 URL_REQUIRED = '"url" является обязательным полем!'
 INVALID_SHORT = 'Указано недопустимое имя для короткой ссылки'
 INVALID_URL = 'Указан невалидный URL.'
-CUSTOM_ID_DESCRIPTION = 'Желаемая короткая ссылка'
+CUSTOM_SHORT_DESCRIPTION = 'Желаемая короткая ссылка'
 DATA_REQUIRED = 'Обязательное поле'
 GENERATE_FAIL = (
     'Не удалось сгенерировать уникальный короткий '
-    'идентификатор за ограниченное количество попыток.')
+    'идентификатор за {MAX_GENERATE_ATTEMPTS} попытки.')
 ORIGINAL_DESCRIPTION = 'Вставьте ссылку'
 SHORT_EXISTS = 'Предложенный вариант короткой ссылки уже существует.'
 SUBMIT_BUTTON_TEXT = 'Создать'
+SHORT_URL_REDIRECT_NAME = 'redirect_to_original'

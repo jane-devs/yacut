@@ -14,7 +14,7 @@ def get_original_link(short):
     API-запрос на получение оригинального URL
     по короткому идентификатору.
     """
-    url_map = URLMap.get_existing_short(short)
+    url_map = URLMap.get(short)
     if url_map:
         return jsonify({'url': url_map.original}), HTTPStatus.OK
     raise YacutException(API_ERROR_SHORT, HTTPStatus.NOT_FOUND)
@@ -30,14 +30,13 @@ def add_short_link():
         raise YacutException(URL_REQUIRED)
     url = data.get('url')
     try:
-        url_map = URLMap.create(
-            original=url,
-            short=data.get('custom_id'),
-            is_data_validated=False
-        )
+        return jsonify({
+            'url': data['url'],
+            'short_link': URLMap.create(
+                original=url,
+                short=data.get('custom_id'),
+                validate=True
+            ).get_full_url()
+        }), HTTPStatus.CREATED
     except ValueError as e:
         raise YacutException(str(e))
-    return jsonify({
-        'url': data['url'],
-        'short_link': url_map.get_full_url()
-    }), HTTPStatus.CREATED
